@@ -17,11 +17,12 @@ func main() {
 	mux := http.NewServeMux()
 	fmt.Println("Server started")
 	fmt.Println(domen + host + port)
-	// PATH
-	UserRegistrationController := http.HandlerFunc(controllers.UserRegistrationController)
 	// URLS
-	mux.Handle("/api/user/registration", middleware.CheckJSONMiddleware(UserRegistrationController))
+	mux.Handle("/api/user/registration",
+		middleware.CheckJSONMiddleware(http.HandlerFunc(controllers.UserRegistrationController)))
+	//
 	mux.Handle("/api/user/update", middleware.CheckJSONMiddleware(nil))
+	//
 	mux.Handle("/api/user/delete", middleware.CheckJSONMiddleware(nil))
 	// Run Server
 	err := http.ListenAndServe(host+port, mux)

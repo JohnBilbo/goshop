@@ -22,9 +22,13 @@ func UserRegistrationController(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Empty data", 500)
 		return
 	}
-	err = database.UserRegistrationDB(&userData)
+	commandTag, err := database.UserRegistrationDB(&userData)
+	// Заметка Нужно правильно обработать ошибки БД отдаваемые в Response
 	if err != nil {
-		fmt.Println("Database error ", err)
+		http.Error(w, err.Error(), 500)
+	}
+	if commandTag != nil {
+		w.Write([]byte("User added\n"))
 	}
 }
 
