@@ -4,7 +4,6 @@ import (
 	"bshop/app/users/database"
 	"bshop/app/users/models"
 	"encoding/json"
-	"fmt"
 	"net/http"
 )
 
@@ -13,22 +12,20 @@ func UserRegistrationController(w http.ResponseWriter, r *http.Request) {
 	var userData models.RegistrationData
 	err := json.NewDecoder(r.Body).Decode(&userData)
 	if err != nil {
-		fmt.Println("JSON Decode error ", err)
-		http.Error(w, "Incorrect data", 500)
+		http.Error(w, "Ошибка декодирования JSON", 500)
 		return
 	}
 	if userData.Username == "" || userData.Password == "" || userData.Email == "" {
-		fmt.Println("Empty DATA Error ", err)
-		http.Error(w, "Empty data", 500)
+		http.Error(w, "Не верно заполнены данные", 500)
 		return
 	}
 	commandTag, err := database.UserRegistrationDB(&userData)
-	// Заметка Нужно правильно обработать ошибки БД отдаваемые в Response
-	if err != nil {
-		http.Error(w, err.Error(), 500)
+	// Заметка - Нужно правильно обработать ошибки БД отдаваемые в Response
+	if err != nil && err.Error() == `ОШИБКА: повторяющееся значение ключа нарушает ограничение уникальности "shop_user_username_key" (SQLSTATE 23505)` {
+		http.Error(w, "Пользователь с такими данными уже существует\n", 500)
 	}
 	if commandTag != nil {
-		w.Write([]byte("User added\n"))
+		w.Write([]byte("Пользователь добавлен"))
 	}
 }
 
@@ -40,4 +37,8 @@ func UserUpdateController(w http.ResponseWriter, r *http.Request) {
 // Удалить пользователя
 func UserRemoveController(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Worked\n"))
+}
+
+// Возвращает доп данные о пользователе
+func UserGetController(w http.ResponseWriter, r *http.Request) {
 }
