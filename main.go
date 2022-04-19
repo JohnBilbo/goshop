@@ -2,9 +2,9 @@ package main
 
 import (
 	"bshop/app/users/controllers"
+	"bshop/app/users/database"
 	"bshop/app/users/middleware"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -17,17 +17,25 @@ func main() {
 	mux := http.NewServeMux()
 	fmt.Println("Server started")
 	fmt.Println(domen + host + port)
-	// URLS
+	/* URLS */
 	mux.Handle("/api/user/registration",
-		middleware.CheckJSONMiddleware(http.HandlerFunc(controllers.UserRegistrationController)))
+		middleware.CheckJSONMiddleware(middleware.UserAuthMiddleware(http.HandlerFunc(controllers.UserRegistrationController))))
 	//
 	mux.Handle("/api/user/update", middleware.CheckJSONMiddleware(nil))
 	//
 	mux.Handle("/api/user/delete", middleware.CheckJSONMiddleware(nil))
-	// Run Server
-	err := http.ListenAndServe(host+port, mux)
+	/* Run Server */
+	// err := http.ListenAndServe(host+port, mux)
+	// if err != nil {
+	// 	fmt.Printf("Server starting error %s\n", err)
+	// 	log.Fatal(err)
+	// }
+	//
+	//
+	d, err := database.GetUserFromDB("Bekzhan", "12345", "mag@gmail.com")
 	if err != nil {
-		fmt.Printf("Server starting error %s\n", err)
-		log.Fatal(err)
+		fmt.Println(err)
 	}
+	fmt.Println(d.Id, d.Username, d.Password, d.TokenTemp)
+
 }

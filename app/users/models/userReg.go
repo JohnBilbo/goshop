@@ -10,3 +10,21 @@ type RegistrationData struct {
 	TokenTemp string  `json:"token_temp" db:"token_temp"`
 	Balance   float64 `json:"balance" db:"balance"`
 }
+
+// Сравнивает пароли пользователя
+func (r RegistrationData) EqvalPasswords(pass string) bool {
+	if r.Password == pass {
+		return true
+	} else {
+		return false
+	}
+}
+
+// Сравнивает токены пользователя
+func (r RegistrationData) EqvalTokens(token string) bool {
+	if r.TokenTemp == token {
+		return true
+	} else {
+		return false
+	}
+}

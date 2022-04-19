@@ -1,24 +1,22 @@
 package middleware
 
 import (
-	"fmt"
+	"context"
 	"net/http"
 	"strings"
 )
 
 // Прослойка для проверки подлиноости пользователя
-func UserAuthMiddleware(h http.Handler) http.Handler {
+func UserAuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		TokenType := "Basic "
-		Token := strings.Split(r.Header.Get("Authorization"), TokenType)
-		if len(Token) != 2 {
+		tokenType := "Basic "
+		token := strings.Split(r.Header.Get("Authorization"), tokenType)
+		if len(token) != 2 {
 			w.WriteHeader(http.StatusUnauthorized)
-			// Когда приложение будет закончено.
-			// Нужно не забыть удалить вывод ошибки "Token error\n"
-			w.Write([]byte("Token error\n"))
+			w.Write([]byte("Empty token\n"))
 			return
 		}
-		fmt.Println(Token[1])
-		h.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), "Token", token[1])
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
